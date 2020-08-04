@@ -1,4 +1,5 @@
 import pandas as pd
+import plotly.graph_objects as go
 import numpy as np
 from states_dict import us_state_abbrev
 
@@ -27,7 +28,7 @@ for s in states_mpv:
                 pv_state_race_dict[s] = dict()
             if race not in pv_state_race_dict[s]:
                 pv_state_race_dict[s][race] = dict()
-            pv_state_race_dict[s][race] = num_pv_race["Victim's name"][s][race] / total
+            pv_state_race_dict[s][race] = (num_pv_race["Victim's name"][s][race] / total) * 100
 
 print(pv_state_race_dict)
 
@@ -60,5 +61,62 @@ for state in state_race_dict.keys():
 
 sorted_by_largest_discrep = sorted(percent_violence_discrep.items(), key=lambda x: x[1], reverse=True)
 
-print(sorted_by_largest_discrep)
+print(percent_violence_discrep)
 
+df_dict = dict()
+
+states = list(race_df["Location"])
+codes = [us_state_abbrev[x] for x in states]
+# df_dict["states"] = list(sorted(percent_violence_discrep.keys()))
+df_dict["states"] = states
+df_dict["codes"] = codes
+df_dict["discrepancies"] = [x for x in [percent_violence_discrep[a] for a in codes]]
+
+print(df_dict)
+
+df_dict["states"].remove("District of Columbia")
+df_dict["codes"].remove("DC")
+df_dict["discrepancies"].remove(95.3833)
+
+
+df = pd.DataFrame.from_dict(df_dict)
+
+pop_df = race_df[["Location","Black"]].copy()
+pop_df.columns = ["states", "population"]
+print(pop_df)
+pop_df = pop_df.drop(index=8).copy()
+print(pop_df)
+print(len(pop_df))
+print(len(codes))
+pop_df["codes"] = codes
+
+print(pop_df)
+
+# https://plotly.com/python/choropleth-maps/#united-states-choropleth-map
+
+
+fig = go.Figure(
+    data=go.Choropleth(locations=df["codes"],
+                       z=df["discrepancies"],
+                       locationmode="USA-states",
+                       colorscale='Reds',
+                       colorbar_title="% Discrepancy"))
+
+fig.update_layout(
+    title_text="Discrepancy between % Black people killed by police<br>and percent representation in population",
+    geo_scope="usa")
+
+fig.show()
+
+fig = go.Figure(
+    data=go.Choropleth(locations=pop_df["codes"],
+                       z=pop_df["population"],
+                       locationmode="USA-states",
+                       colorscale='Reds',
+                       colorbar_title="% population"))
+
+fig.update_layout(
+    title_text="Percent Black population",
+    geo_scope="usa")
+
+fig.show()
