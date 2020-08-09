@@ -39,7 +39,8 @@ for i in range(0, len(highest_disparity_states)):
     )
     opts.append(opt)
 
-data = [dict(name = 'Alaska', type = 'line', x = individual_victims_df.DateOfIncident, y = individual_victims_df.Count, mode = 'lines', text = individual_victims_df.State, hoverinfo = 'y+text',
+data = [
+		dict(name = 'Alaska', type = 'line', x = individual_victims_df.DateOfIncident, y = individual_victims_df.Count, mode = 'lines', text = individual_victims_df.State, hoverinfo = 'y+text',
 			    transforms = [dict(type = 'filter', target = individual_victims_df['State'], operation = '=', value = 'AK')]),
 		dict(name = 'Massachusetts', type = 'line', x = individual_victims_df.DateOfIncident, y = individual_victims_df.Count, mode = 'lines', text = individual_victims_df.State, hoverinfo = 'y+text',
 				transforms = [dict(type = 'filter', target = individual_victims_df['State'], operation = '=', value = 'MA')]),
@@ -57,7 +58,11 @@ data = [dict(name = 'Alaska', type = 'line', x = individual_victims_df.DateOfInc
 				transforms = [dict(type = 'filter', target = individual_victims_df['State'], operation = '=', value = 'RI')])				
 ]
 
-layout = dict(title = 'Killings over time')
+layout = dict(
+	title = 'Killings over time', 
+	xaxis=dict(title='Time (2013-2020)'),
+	yaxis=dict(title='Number of victims')
+)
 fig_dict = dict(data=data, layout=layout)
 pio.show(fig_dict, validate=False)
 
@@ -70,9 +75,16 @@ kbs_x_sorted = [kbs_x for _, kbs_x in sorted(zip(kbs_y,kbs_x))]
 kbs_y_sorted = sorted(kbs_y)
 
 kbs_fig = go.Figure(data=[
-    go.Bar(name='Black people killed', x=kbs_x_sorted, y=kbs_y_sorted),
-    go.Bar(name='White people killed', x=killings_by_state_df.State, y=white_killed_per_population)
+    go.Bar(name='Black people killed per 1M black population', x=kbs_x_sorted, y=kbs_y_sorted),
+    go.Bar(name='White people killed per 1M white population', x=killings_by_state_df.State, y=white_killed_per_population)
 ])
+
+kbs_fig.update_layout(
+    title="White and black people killed by victim demographic",
+    xaxis_title="State",
+    yaxis_title="Number of people killed per 1M population"
+)
+
 kbs_fig.update_layout(barmode='group')
 kbs_fig.show()
 
@@ -87,5 +99,10 @@ kbs_ratio_y_sorted = sorted(kbs_ratio_y)
 kbs_ratio_fig = go.Figure(data=[
     go.Bar(name='Ratio of Black victims to White victims', x=kbs_ratio_x_sorted, y=kbs_ratio_y_sorted)
 ])
-kbs_ratio_fig.update_layout(barmode='group')
+kbs_ratio_fig.update_layout(
+	barmode='group',
+	title="Ratio of black people killed to white people killed by victim demographic",
+    xaxis_title="State",
+    yaxis_title="Ratio of black people killed to white people killed"
+)
 kbs_ratio_fig.show()
