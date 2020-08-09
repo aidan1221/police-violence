@@ -8,6 +8,7 @@ import states_dict
 police_killings_df = pd.read_csv('PoliceKillings.csv')
 killings_by_state_df = pd.read_csv('KillingsByState.csv')
 individual_victims_df = pd.read_csv('IndividualVictims.csv')
+killings_by_pd_df = pd.read_csv('KillingsByPD.csv')
 
 black_population = killings_by_state_df.AfricanAmericanAlone
 black_ppl_killed = killings_by_state_df.BlackPeopleKilled
@@ -65,6 +66,26 @@ layout = dict(
 )
 fig_dict = dict(data=data, layout=layout)
 pio.show(fig_dict, validate=False)
+
+
+
+#Relationship between violent crime rate and police killings
+kbp_x=killings_by_pd_df.PD
+kbp_y=killings_by_pd_df['Killings by Police per 10k Arrests']
+kbp_x_sorted = [kbp_x for _, kbp_x in sorted(zip(kbp_y,kbp_x))]
+kbp_y_sorted = sorted(kbp_y)
+
+kbp_fig = go.Figure(data=[
+    go.Scatter(name='Killings by Police per 10k Arrests', x=kbp_x_sorted, y=kbp_y_sorted, mode='markers'),
+    go.Scatter(name='Average violent crimes per 1k population', x=kbp_x, y=killings_by_pd_df['Violent Crime Rate'], mode='markers')
+])
+
+kbp_fig.update_layout(
+    title="Relationship between violent crime rate and police killings",
+    #xaxis_title="Police Department",
+)
+
+kbp_fig.show()
 
 
 
